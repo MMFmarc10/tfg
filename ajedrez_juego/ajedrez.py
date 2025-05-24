@@ -3,9 +3,6 @@ import chess
 from PIL import Image, ImageTk
 
 import chess
-import chess.pgn
-import chess.engine
-import chess.svg
 
 
 import torch
@@ -108,11 +105,14 @@ class ChessBoard(tk.Canvas):
         from_square = chess.square(from_pos[1], 7 - from_pos[0])
         to_square = chess.square(to_pos[1], 7 - to_pos[0])
         
-        # Create the UCI move
-        uci_move = chess.Move(from_square, to_square)
-        print(f"UCI move: {uci_move.uci()}")
+        piece = self.board.piece_at(from_square)
+      
+        if piece and piece.piece_type == chess.PAWN and (chess.square_rank(to_square) in [0, 7]):
+     
+            uci_move = chess.Move(from_square, to_square, promotion=chess.QUEEN)
+        else:
+            uci_move = chess.Move(from_square, to_square)
         
-    
         # Check if the move is legal
         if uci_move in self.board.legal_moves:
             # Push the move to the board
@@ -134,10 +134,7 @@ class ChessBoard(tk.Canvas):
 
             self.update_board_ui()
             self.bot_move()
-            
-    
-           
-            print("Move made")
+            print("---------------------------------------------------------------")
         else:
             print("Illegal move")
             self.update_board_ui()
@@ -155,9 +152,6 @@ class ChessBoard(tk.Canvas):
           # Convertir las posiciones de las casillas al formato (row, col)
         self.casilla_origen = divmod(move.from_square, 8)
         self.casilla_final = divmod(move.to_square, 8)
-
-        print(  self.casilla_origen)
-        print(  self.casilla_final )
 
         root.config(cursor="")
         root.update()
@@ -190,10 +184,10 @@ modelo = resnet.ResNet(12,256)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Cargar los pesos guardados
   
-modelo.load_state_dict(torch.load("modelo_pesos9.pth"))
+modelo.load_state_dict(torch.load("modelo_pesos9.pth",map_location=torch.device("cpu")))
 modelo = modelo.to(device)
 
-bot =montecarlo.BotMonteCarlo(500,modelo,device)
+bot =montecarlo.BotMonteCarlo(200,modelo,device)
 
 root = tk.Tk()
 gameboard = chess.Board()

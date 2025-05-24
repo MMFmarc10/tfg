@@ -1,18 +1,10 @@
 
 
 import chess
-import chess.pgn
-import chess.engine
-import chess.svg
 import math
 
 import numpy as np
 import chess
-import chess.pgn
-import chess.engine
-import chess.svg
-
-
 
 import torch
 
